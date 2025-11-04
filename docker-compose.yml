@@ -1,33 +1,99 @@
-services:
-  # 前端服务 - Vue.js 应用
-  frontend:
-    build: ./daily-web
-    container_name: daily-web
-    restart: always
-    ports:
-      - "8080:80"
-    depends_on:
-      - backend
-    networks:
-      - daily-app-network
+version: '3.8'
 
-  # 后端服务 - Node.js/Express 应用
-  backend:
-    build: ./daily-server
-    container_name: daily-server
-    restart: always
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: dailyapp-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: dailyapp
+      MYSQL_USER: dailyapp
+      MYSQL_PASSWORD: dailyapp123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - dailyapp-network
+
+  # Redis (可选，用于缓存)
+  redis:
+    image: redis:7-alpine
+    container_name: dailyapp-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - dailyapp-network
+
+  # 后端 API 服务
+  daily-server:
+    build:
+      context: ./daily-server
+      dockerfile: Dockerfile
+    container_name: dailyapp-server
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: mysql://dailyapp:dailyapp123@mysql:3306/dailyapp
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      REDIS_URL: redis://redis:6379
+      PORT: 3000
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - MONGODB_URI=mongodb://admin:Bing2003@8.155.40.179:27017/daily_app?authSource=admin
-      - PORT=3000
     volumes:
       - ./daily-server/uploads:/app/uploads
+      - ./daily-server/logs:/app/logs
+    depends_on:
+      - mysql
+      - redis
     networks:
-      - daily-app-network
+      - dailyapp-network
 
-# 网络
+  # Web 管理后台
+  daily-web:
+    build:
+      context: ./daily-web
+      dockerfile: Dockerfile
+    container_name: dailyapp-web
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - daily-server
+    networks:
+      - dailyapp-network
+
+  # Nginx 反向代理 (可选)
+  nginx:
+    image: nginx:alpine
+    container_name: dailyapp-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./daily-server/uploads:/var/www/uploads
+    depends_on:
+      - daily-server
+      - daily-web
+    networks:
+      - dailyapp-network
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
 networks:
-  daily-app-network:
+  dailyapp-network:
     driver: bridge

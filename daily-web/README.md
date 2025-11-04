@@ -1,95 +1,125 @@
-#💐💐💐 Vue 3.2 + vuex + Vite2 + Element-Plus 后台管理系统
+# DailyApp 管理后台
 
-![banner](./src/assets/login2.png)
+基于 Vue 3 + Element Plus 的形象管理系统管理后台。
 
-### 前言 📖
+## 🚀 快速开始
 
-项目基于 Vue3.2、Javascript、Vite2、vuex、Element-Plus 开发的一套后台管理模板，目前利用空余时间开发 🕒🕒🕒🕒。项目中借鉴很多优秀的后台管理系统，从 0 开始搭建项目（其中 ui 图是借鉴了【即时设计】里的优秀的设计图），整个项目还有很多地方不完善，后期会持续更新，希望大家能多提意见。
+### 环境要求
 
-### ？为什么开发这个管理系统 👩‍🔬
+- Node.js 16+
+- npm 或 yarn
 
-- 主要是想把自己常用的组件进行一个封装 二次巩固
-- 目前看了很多优秀的 Vue3 的开源后台管理系统，感觉都非常庞大（想开发一套适合自己的）
+### 安装依赖
 
-### 一、在线预览 🛫
-
-- Link：http://124.221.156.158:9797/#/login
-
-### 二、gitee 地址 🛫
-
-- Link：https://gitee.com/tanzo/vue-manage-system
-
-### 三、本地预览 🛫🛫🛫
-
+```bash
+npm install
 ```
-git clone 项目地址
 
-npm install  (依赖安装失败可以尝试cnpm install)
+### 启动开发服务器
 
+```bash
 npm run dev
 ```
 
-### 四、🔨 项目功能
+### 构建生产版本
 
-- 🚀 使用 Vue3.2 开发，单文件组件 `＜script setup＞`开发
-- 🚀 采用动态路由菜单模式
-- 🚀 数据模拟用到了 MockJS
-- 🚀 使用 Vuex getter 模块化管理（ 加入了持久化插件）
-- 🚀 Axios 的二次封装 （全局错误拦截、常用请求封装、全局请求 Loading、取消重复请求……）
-- 🚀 对 el-table 组件进行的二次封装
-- 🚀 使用 vue-router 进行路由权限拦截（403 页面）、页面按钮权限配置、路由懒加载
-- 🚀 使用 keep-alive 对整个页面进行缓存，支持多级嵌套页面（缓存路由里可配置、页面切换加入动画效果）
-- 🚀 常用自定义指令的封装 直接 v-copy 即可实现复制 （复制、拖拽、、、等等）
-- 🚀 vite.config.js 打包配置(静态资源合并打包/清除 log/gzip 压缩配置等)
-
-### 五、项目截图 📷
-
-#### 1、登录页：
-
-![login-light](./src/assets/login2.png)
-
-#### 2、首页：
-
-![home_light](./src/assets/home2.png)
-
-#### 3、表格页：
-
-![table_light](./src/assets/table.png)
-
-#### 4、流程图：
-
-![dataScreen02](./src/assets/flow.png)
-
-### 六、文件资源目录 📚
-
-```text
-├─ .vscode                # vscode推荐配置
-├─ public                 # 静态资源文件（忽略打包）
-├─ src
-│  ├─ api                 # API 接口管理
-│  ├─ assets              # 静态资源文件
-│  ├─ components          # 全局组件
-│  ├─ config              # 全局配置项
-│  ├─ instruction         # 指令文件
-│  ├─ layout              # 框架布局
-│  ├─ router              # 路由管理
-│  ├─ store               # VUEX模块化管理
-│  ├─ styles              # 全局样式
-│  ├─ utils               # 工具库（color函数的封装）
-│  ├─ views               # 项目所有页面
-│  ├─ App.vue             # 入口页面
-│  └─ main.js             # 入口文件
-└─ vite.config.ts         # vite 配置
+```bash
+npm run build
 ```
 
-### 七、浏览器支持
+## 📚 功能特性
 
-> vue3.2 不支持 IE 浏览器。其他还行吧（其实我没测 🤣🧐）
+### 🎯 核心功能
 
-### 八、项目后台接口 🧩🧐
+- **用户认证** - 登录/注册/退出
+- **形象管理** - 创建、编辑、删除形象记录
+- **照片上传** - 支持多张照片上传和预览
+- **数据统计** - 仪表盘展示各种统计信息
+- **用户管理** - 查看和管理用户信息
+- **系统设置** - 基础系统配置
 
-> 项目后台接口全部采用 Mock 数据
+### 🎨 界面特性
 
-### 九 最后求个关注 👀 🌟🌟🌟🙇‍♀️🙇‍♀️🙇‍♀️
+- **响应式设计** - 适配桌面端和移动端
+- **现代化UI** - 基于 Element Plus 组件库
+- **暗色主题** - 支持暗色模式切换
+- **图表展示** - 使用 ECharts 展示数据
+- **图片预览** - 支持图片放大预览
 
-![home_light](https://s1.328888.xyz/2022/09/18/oyxSr.gif)
+### 🔧 技术特性
+
+- **Vue 3** - 使用 Composition API
+- **Vite** - 快速的构建工具
+- **Pinia** - 状态管理
+- **Vue Router** - 路由管理
+- **Axios** - HTTP 请求
+- **SCSS** - CSS 预处理器
+
+## 📁 项目结构
+
+```
+src/
+├── api/                # API 接口
+├── assets/            # 静态资源
+│   └── styles/        # 样式文件
+├── components/        # 公共组件
+├── router/           # 路由配置
+├── store/            # 状态管理
+├── utils/            # 工具函数
+├── views/            # 页面组件
+├── App.vue           # 根组件
+└── main.js           # 入口文件
+```
+
+## 🔗 API 接口
+
+### 认证接口
+
+- `POST /api/auth/login` - 用户登录
+- `POST /api/auth/register` - 用户注册
+- `POST /api/auth/logout` - 退出登录
+
+### 形象管理接口
+
+- `GET /api/appearances` - 获取形象记录列表
+- `POST /api/appearances` - 创建形象记录
+- `PUT /api/appearances/:id` - 更新形象记录
+- `DELETE /api/appearances/:id` - 删除形象记录
+
+### 文件上传接口
+
+- `POST /api/upload/appearance` - 上传形象照片
+
+## 🎨 自定义主题
+
+项目支持自定义主题，可以在 `src/assets/styles/index.scss` 中修改样式变量。
+
+## 📱 响应式支持
+
+- **桌面端**: >= 1200px
+- **平板端**: 768px - 1199px  
+- **移动端**: < 768px
+
+## 🔧 开发说明
+
+### 环境变量
+
+开发环境会自动代理 API 请求到 `http://localhost:3000`。
+
+### 代码规范
+
+项目使用 ESLint 进行代码检查，请确保代码符合规范。
+
+### 构建部署
+
+```bash
+# 构建生产版本
+npm run build
+
+# 预览构建结果
+npm run preview
+```
+
+## 📝 许可证
+
+MIT License

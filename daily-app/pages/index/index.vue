@@ -1,584 +1,392 @@
 <template>
-  <view class="home-container">
-    <!-- 顶部用户信息 -->
-    <view class="header-section">
-      <view class="user-info">
-        <view class="avatar-wrapper">
-          <image 
-            :src="userInfo.avatar || '/static/default-avatar.png'" 
-            class="avatar"
-            mode="aspectFill"
-          ></image>
-        </view>
-        <view class="user-details">
-          <view class="greeting">{{ greeting }}</view>
-          <view class="username">{{ userInfo.username || '用户' }}</view>
-        </view>
+  <view class="container">
+    <!-- 顶部欢迎区域 -->
+    <view class="header">
+      <view class="welcome">
+        <text class="welcome-text">今日形象记录</text>
+        <text class="date">{{ currentDate }}</text>
       </view>
-      <view class="header-actions">
-        <view class="notification-btn" @tap="goToNotifications">
-          <text class="iconfont icon-bell"></text>
-          <view class="badge" v-if="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</view>
-        </view>
+      <view class="add-btn" @click="goToAdd">
+        <text class="add-icon">+</text>
       </view>
     </view>
-    
-    <!-- 快捷操作卡片 -->
-    <view class="quick-actions">
-      <view class="section-title">快捷操作</view>
-      <view class="action-grid">
+
+    <!-- 形象记录列表 -->
+    <view class="content">
+      <view v-if="appearanceList.length === 0" class="empty">
+        <image class="empty-icon" src="/static/empty.png" mode="aspectFit"></image>
+        <text class="empty-text">还没有形象记录</text>
+        <text class="empty-desc">点击右上角 + 号添加今日形象</text>
+      </view>
+      
+      <view v-else class="appearance-list">
         <view 
-          class="action-item" 
-          v-for="action in quickActions" 
-          :key="action.id"
-          @tap="handleQuickAction(action)"
+          v-for="item in appearanceList" 
+          :key="item.id" 
+          class="appearance-item"
+          @click="goToDetail(item)"
         >
-          <view class="action-icon" :style="{ backgroundColor: action.color }">
-            <text class="iconfont" :class="action.icon"></text>
+          <view class="item-images">
+            <image 
+              v-for="(photo, index) in item.photos.slice(0, 3)" 
+              :key="index"
+              :src="photo" 
+              class="item-image"
+              mode="aspectFill"
+            ></image>
+            <view v-if="item.photos.length > 3" class="more-count">
+              +{{ item.photos.length - 3 }}
+            </view>
           </view>
-          <text class="action-text">{{ action.name }}</text>
-        </view>
-      </view>
-    </view>
-    
-    <!-- 统计数据 -->
-    <view class="stats-section">
-      <view class="section-title">今日数据</view>
-      <view class="stats-grid">
-        <view class="stat-item" v-for="stat in todayStats" :key="stat.key">
-          <view class="stat-number">{{ stat.value }}</view>
-          <view class="stat-label">{{ stat.label }}</view>
-        </view>
-      </view>
-    </view>
-    
-    <!-- 最近活动 -->
-    <view class="recent-section">
-      <view class="section-header">
-        <view class="section-title">最近活动</view>
-        <text class="more-btn" @tap="goToActivityList">查看更多</text>
-      </view>
-      <view class="activity-list">
-        <view 
-          class="activity-item" 
-          v-for="activity in recentActivities" 
-          :key="activity.id"
-        >
-          <view class="activity-icon" :style="{ backgroundColor: activity.color }">
-            <text class="iconfont" :class="activity.icon"></text>
-          </view>
-          <view class="activity-content">
-            <view class="activity-title">{{ activity.title }}</view>
-            <view class="activity-time">{{ formatTime(activity.time) }}</view>
-          </view>
-        </view>
-      </view>
-    </view>
-    
-    <!-- 待办提醒 -->
-    <view class="todo-section" v-if="urgentTodos.length > 0">
-      <view class="section-header">
-        <view class="section-title">紧急待办</view>
-        <text class="more-btn" @tap="goToTodos">查看全部</text>
-      </view>
-      <view class="todo-list">
-        <view 
-          class="todo-item" 
-          v-for="todo in urgentTodos" 
-          :key="todo.id"
-          @tap="goToTodoDetail(todo)"
-        >
-          <view class="todo-priority" :class="'priority-' + todo.priority"></view>
-          <view class="todo-content">
-            <view class="todo-title">{{ todo.title }}</view>
-            <view class="todo-time" v-if="todo.endTime">
-              截止：{{ formatDateTime(todo.endTime) }}
+          
+          <view class="item-content">
+            <view class="item-header">
+              <text class="item-title">{{ item.title }}</text>
+              <text class="item-date">{{ formatDate(item.createdAt) }}</text>
+            </view>
+            
+            <text class="item-desc">{{ item.description }}</text>
+            
+            <view class="item-tags">
+              <text v-if="item.mood" class="tag mood">{{ item.mood }}</text>
+              <text v-if="item.weather" class="tag weather">{{ item.weather }}</text>
+              <text v-if="item.occasion" class="tag occasion">{{ item.occasion }}</text>
+            </view>
+            
+            <view v-if="item.rating" class="item-rating">
+              <text 
+                v-for="n in 5" 
+                :key="n" 
+                class="star"
+                :class="{ active: n <= item.rating }"
+              >★</text>
             </view>
           </view>
         </view>
       </view>
-		</view>
-	</view>
+    </view>
+
+    <!-- 底部统计 -->
+    <view class="stats">
+      <view class="stat-item">
+        <text class="stat-number">{{ appearanceList.length }}</text>
+        <text class="stat-label">总记录</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{ thisMonthCount }}</text>
+        <text class="stat-label">本月</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{ avgRating.toFixed(1) }}</text>
+        <text class="stat-label">平均评分</text>
+      </view>
+    </view>
+  </view>
 </template>
 
 <script>
-import { useUserStore } from '@/stores/user'
-import { todoAPI, billAPI, noteAPI } from '@/api/index'
-import dayjs from 'dayjs'
-
-	export default {
-  name: 'Home',
-		data() {
-			return {
-      userInfo: {},
-      unreadCount: 0,
-      todayStats: [
-        { key: 'expense', label: '今日支出', value: '0' },
-        { key: 'todos', label: '待办事项', value: '0' },
-        { key: 'notes', label: '笔记数量', value: '0' },
-        { key: 'foods', label: '美食记录', value: '0' },
-        { key: 'friends', label: '朋友数量', value: '0' },
-        { key: 'appearance', label: '形象记录', value: '0' }
-      ],
-      quickActions: [
-        { id: 1, name: '记账', icon: 'icon-money', color: '#FF6B6B', path: '/pages/bill/add' },
-        { id: 2, name: '待办', icon: 'icon-todo', color: '#4ECDC4', path: '/pages/todo/add' },
-        { id: 3, name: '笔记', icon: 'icon-note', color: '#45B7D1', path: '/pages/note/add' },
-        { id: 4, name: '美食', icon: 'icon-food', color: '#96CEB4', path: '/pages/food/add' },
-        { id: 5, name: '朋友', icon: 'icon-friend', color: '#FFA726', path: '/pages/friend/add' },
-        { id: 6, name: '形象', icon: 'icon-appearance', color: '#AB47BC', path: '/pages/appearance/index' },
-        { id: 7, name: '日记', icon: 'icon-diary', color: '#26A69A', path: '/pages/diary/add' },
-        { id: 8, name: '统计', icon: 'icon-stats', color: '#EF5350', path: '/pages/bill/statistics' }
-      ],
-      recentActivities: [],
-      urgentTodos: []
+export default {
+  data() {
+    return {
+      appearanceList: [],
+      currentDate: '',
+      loading: false
     }
   },
   
   computed: {
-    greeting() {
-      const hour = new Date().getHours()
-      if (hour < 6) return '深夜好'
-      if (hour < 9) return '早上好'
-      if (hour < 12) return '上午好'
-      if (hour < 14) return '中午好'
-      if (hour < 17) return '下午好'
-      if (hour < 19) return '傍晚好'
-      return '晚上好'
+    thisMonthCount() {
+      const now = new Date()
+      const currentMonth = now.getMonth()
+      const currentYear = now.getFullYear()
+      
+      return this.appearanceList.filter(item => {
+        const itemDate = new Date(item.createdAt)
+        return itemDate.getMonth() === currentMonth && itemDate.getFullYear() === currentYear
+      }).length
+    },
+    
+    avgRating() {
+      if (this.appearanceList.length === 0) return 0
+      const totalRating = this.appearanceList.reduce((sum, item) => sum + (item.rating || 0), 0)
+      return totalRating / this.appearanceList.length
     }
+  },
+  
+  onLoad() {
+    this.initCurrentDate()
+    this.loadAppearanceList()
   },
   
   onShow() {
-    this.checkAuthStatus()
-    this.loadUserInfo()
-    this.loadTodayStats()
-    this.loadRecentActivities()
-    this.loadUrgentTodos()
+    // 页面显示时重新加载数据
+    this.loadAppearanceList()
   },
   
   onPullDownRefresh() {
-    this.refreshData()
+    this.loadAppearanceList()
+    setTimeout(() => {
+      uni.stopPullDownRefresh()
+    }, 1000)
   },
   
-		methods: {
-    // 检查登录状态
-    checkAuthStatus() {
-      const userStore = useUserStore()
-      if (!userStore.checkAuthStatus()) {
-        uni.reLaunch({
-          url: '/pages/login/login'
-        })
-        return false
-      }
-      return true
+  methods: {
+    initCurrentDate() {
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      this.currentDate = `${year}年${month}月${day}日`
     },
     
-    // 加载用户信息
-    loadUserInfo() {
-      const userStore = useUserStore()
-      this.userInfo = userStore.userInfo || {}
-    },
-    
-    // 加载今日统计数据
-    async loadTodayStats() {
+    async loadAppearanceList() {
+      this.loading = true
       try {
-        const today = dayjs().format('YYYY-MM-DD')
+        // 从本地存储加载数据
+        const localData = uni.getStorageSync('appearanceList') || []
+        this.appearanceList = localData.map(item => ({
+          ...item,
+          photos: typeof item.photos === 'string' ? JSON.parse(item.photos) : item.photos
+        }))
         
-        // 获取今日账单统计
-        const billStats = await billAPI.getStats({ 
-          startDate: today, 
-          endDate: today 
+        // TODO: 如果已登录，从服务器同步数据
+        
+      } catch (error) {
+        console.error('加载形象记录失败:', error)
+        uni.showToast({
+          title: '加载失败',
+          icon: 'error'
         })
-        
-        // 获取待办统计
-        const todoStats = await todoAPI.getStats()
-        
-        // 获取笔记统计  
-        const noteStats = await noteAPI.getStats()
-        
-        this.todayStats = [
-          { 
-            key: 'expense', 
-            label: '今日支出', 
-            value: `¥${billStats.data?.totalAmount || 0}` 
-          },
-          { 
-            key: 'todos', 
-            label: '待办事项', 
-            value: todoStats.data?.pendingCount || 0 
-          },
-          { 
-            key: 'notes', 
-            label: '笔记数量', 
-            value: noteStats.data?.totalCount || 0 
-          },
-          { 
-            key: 'foods', 
-            label: '美食记录', 
-            value: '0' 
-          }
-        ]
-      } catch (error) {
-        console.error('加载统计数据失败:', error)
+      } finally {
+        this.loading = false
       }
     },
     
-    // 加载最近活动
-    async loadRecentActivities() {
-      try {
-        // 这里可以调用获取最近活动的API
-        // 暂时使用模拟数据
-        this.recentActivities = [
-          {
-            id: 1,
-            title: '添加了一笔餐饮支出',
-            time: new Date(Date.now() - 1000 * 60 * 30),
-            icon: 'icon-money',
-            color: '#FF6B6B'
-          },
-          {
-            id: 2,
-            title: '完成了待办事项：购买日用品',
-            time: new Date(Date.now() - 1000 * 60 * 60 * 2),
-            icon: 'icon-todo',
-            color: '#4ECDC4'
-          },
-          {
-            id: 3,
-            title: '创建了新笔记：学习计划',
-            time: new Date(Date.now() - 1000 * 60 * 60 * 5),
-            icon: 'icon-note',
-            color: '#45B7D1'
-          }
-        ]
-      } catch (error) {
-        console.error('加载最近活动失败:', error)
-      }
-    },
-    
-    // 加载紧急待办
-    async loadUrgentTodos() {
-      try {
-        const response = await todoAPI.getList({ 
-          priority: 2, // 紧急
-          status: 0,   // 未完成
-          limit: 3 
-        })
-        this.urgentTodos = response.data?.todos || []
-      } catch (error) {
-        console.error('加载紧急待办失败:', error)
-      }
-    },
-    
-    // 刷新数据
-    async refreshData() {
-      await Promise.all([
-        this.loadTodayStats(),
-        this.loadRecentActivities(),
-        this.loadUrgentTodos()
-      ])
-      uni.stopPullDownRefresh()
-    },
-    
-    // 处理快捷操作
-    handleQuickAction(action) {
+    goToAdd() {
       uni.navigateTo({
-        url: action.path
+        url: '/pages/appearance/add'
       })
     },
     
-    // 跳转到通知页面
-    goToNotifications() {
-      uni.showToast({
-        title: '功能开发中',
-        icon: 'none'
-      })
-    },
-    
-    // 跳转到活动列表
-    goToActivityList() {
-      uni.showToast({
-        title: '功能开发中',
-        icon: 'none'
-      })
-    },
-    
-    // 跳转到待办列表
-    goToTodos() {
-      uni.switchTab({
-        url: '/pages/todo/index'
-      })
-    },
-    
-    // 跳转到待办详情
-    goToTodoDetail(todo) {
+    goToDetail(item) {
       uni.navigateTo({
-        url: `/pages/todo/detail?id=${todo.id}`
+        url: `/pages/appearance/detail?id=${item.id}`
       })
     },
     
-    // 格式化时间
-    formatTime(time) {
-      return dayjs(time).fromNow()
-    },
-    
-    // 格式化日期时间
-    formatDateTime(time) {
-      return dayjs(time).format('MM-DD HH:mm')
+    formatDate(dateString) {
+      const date = new Date(dateString)
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return `${month}-${day}`
     }
-		}
-	}
+  }
+}
 </script>
 
-<style lang="scss" scoped>
-.home-container {
-  padding: 0 32rpx;
-  background: #f8f9fa;
+<style scoped>
+.container {
   min-height: 100vh;
+  background-color: #f8f9fa;
 }
 
-.header-section {
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 40rpx 0;
-  
-  .user-info {
-    display: flex;
-    align-items: center;
-    
-    .avatar-wrapper {
-      width: 96rpx;
-      height: 96rpx;
-      margin-right: 24rpx;
-      
-      .avatar {
-        width: 100%;
-        height: 100%;
-        border-radius: 48rpx;
-        border: 4rpx solid #ffffff;
-        box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
-      }
-    }
-    
-    .user-details {
-      .greeting {
-        font-size: 28rpx;
-        color: #666666;
-        margin-bottom: 8rpx;
-      }
-      
-      .username {
-        font-size: 36rpx;
-        font-weight: bold;
-        color: #333333;
-      }
-    }
-  }
-  
-  .header-actions {
-    .notification-btn {
-      position: relative;
-      width: 80rpx;
-      height: 80rpx;
-      background: #ffffff;
-      border-radius: 40rpx;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
-      
-      .iconfont {
-        font-size: 36rpx;
-        color: #666666;
-      }
-      
-      .badge {
-        position: absolute;
-        top: -8rpx;
-        right: -8rpx;
-        background: #FF3B30;
-        color: #ffffff;
-        font-size: 20rpx;
-        min-width: 32rpx;
-        height: 32rpx;
-        border-radius: 16rpx;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 8rpx;
-      }
-    }
-  }
+  padding: 40rpx 30rpx 20rpx;
+  background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+  color: white;
 }
 
-.quick-actions, .stats-section, .recent-section, .todo-section {
-  margin-bottom: 40rpx;
-  
-  .section-title {
-    font-size: 32rpx;
-    font-weight: bold;
-    color: #333333;
-    margin-bottom: 24rpx;
-  }
-  
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24rpx;
-    
-    .more-btn {
-      font-size: 26rpx;
-      color: #007AFF;
-    }
-  }
+.welcome-text {
+  font-size: 36rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 10rpx;
 }
 
-.action-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24rpx;
-  
-  .action-item {
-		display: flex;
-		flex-direction: column;
-    align-items: center;
-    padding: 32rpx 16rpx;
-    background: #ffffff;
-    border-radius: 16rpx;
-    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
-    
-    &:active {
-      transform: translateY(2rpx);
-    }
-    
-    .action-icon {
-      width: 80rpx;
-      height: 80rpx;
-      border-radius: 40rpx;
-      display: flex;
-		align-items: center;
-		justify-content: center;
-      margin-bottom: 16rpx;
-      
-      .iconfont {
-        font-size: 36rpx;
-        color: #ffffff;
-      }
-    }
-    
-    .action-text {
-      font-size: 24rpx;
-      color: #666666;
-    }
-  }
+.date {
+  font-size: 24rpx;
+  opacity: 0.8;
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24rpx;
-  
-  .stat-item {
-    background: #ffffff;
-    padding: 32rpx;
-    border-radius: 16rpx;
-    text-align: center;
-    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-    
-    .stat-number {
-      font-size: 48rpx;
-      font-weight: bold;
-      color: #007AFF;
-      margin-bottom: 8rpx;
-    }
-    
-    .stat-label {
-      font-size: 26rpx;
-      color: #666666;
-    }
-  }
-}
-
-.activity-list, .todo-list {
-  background: #ffffff;
-  border-radius: 16rpx;
-  overflow: hidden;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-}
-
-.activity-item, .todo-item {
+.add-btn {
+  width: 80rpx;
+  height: 80rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 40rpx;
   display: flex;
   align-items: center;
-  padding: 32rpx;
-  border-bottom: 1rpx solid #f0f0f0;
-  
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  .activity-icon {
-    width: 72rpx;
-    height: 72rpx;
-    border-radius: 36rpx;
-		display: flex;
-    align-items: center;
-		justify-content: center;
-    margin-right: 24rpx;
-    
-    .iconfont {
-      font-size: 32rpx;
-      color: #ffffff;
-    }
-  }
-  
-  .activity-content, .todo-content {
-    flex: 1;
-    
-    .activity-title, .todo-title {
-      font-size: 30rpx;
-      color: #333333;
-      margin-bottom: 8rpx;
-    }
-    
-    .activity-time, .todo-time {
-      font-size: 24rpx;
-      color: #999999;
-    }
-  }
+  justify-content: center;
 }
 
-.todo-item {
-  .todo-priority {
-    width: 8rpx;
-    height: 72rpx;
-    border-radius: 4rpx;
-    margin-right: 24rpx;
-    
-    &.priority-0 {
-      background: #28a745;
-    }
-    
-    &.priority-1 {
-      background: #ffc107;
-    }
-    
-    &.priority-2 {
-      background: #dc3545;
-    }
-  }
+.add-icon {
+  font-size: 40rpx;
+  font-weight: bold;
 }
 
-/* 图标字体样式 */
-.iconfont {
-  font-family: 'iconfont';
+.content {
+  flex: 1;
+  padding: 20rpx;
 }
 
-.icon-bell::before { content: '🔔'; }
-.icon-money::before { content: '💰'; }
-.icon-todo::before { content: '📝'; }
-.icon-note::before { content: '📖'; }
-.icon-food::before { content: '🍽️'; }
+.empty {
+  text-align: center;
+  padding: 120rpx 40rpx;
+}
+
+.empty-icon {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 40rpx;
+}
+
+.empty-text {
+  display: block;
+  font-size: 32rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.empty-desc {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.appearance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.appearance-item {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.item-images {
+  display: flex;
+  gap: 10rpx;
+  margin-bottom: 20rpx;
+  position: relative;
+}
+
+.item-image {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+}
+
+.more-count {
+  position: absolute;
+  right: 10rpx;
+  bottom: 10rpx;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+  font-size: 20rpx;
+}
+
+.item-content {
+  flex: 1;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15rpx;
+}
+
+.item-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.item-date {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.item-desc {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 20rpx;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.item-tags {
+  display: flex;
+  gap: 10rpx;
+  margin-bottom: 15rpx;
+}
+
+.tag {
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  color: white;
+}
+
+.tag.mood {
+  background: #FF6B6B;
+}
+
+.tag.weather {
+  background: #4ECDC4;
+}
+
+.tag.occasion {
+  background: #45B7D1;
+}
+
+.item-rating {
+  display: flex;
+  gap: 4rpx;
+}
+
+.star {
+  font-size: 28rpx;
+  color: #ddd;
+}
+
+.star.active {
+  color: #FFD700;
+}
+
+.stats {
+  display: flex;
+  background: white;
+  padding: 30rpx;
+  margin: 20rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #007AFF;
+  margin-bottom: 10rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #666;
+}
 </style>

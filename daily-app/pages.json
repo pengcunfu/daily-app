@@ -1,152 +1,50 @@
 {
 	"pages": [
 		{
-			"path": "pages/login/login",
-			"style": {
-				"navigationBarTitleText": "登录",
-				"navigationStyle": "custom"
-			}
-		},
-		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "首页"
-			}
-		},
-		{
-			"path": "pages/bill/index",
-			"style": {
-				"navigationBarTitleText": "账单管理"
-			}
-		},
-		{
-			"path": "pages/bill/add",
-			"style": {
-				"navigationBarTitleText": "添加账单"
-			}
-		},
-		{
-			"path": "pages/bill/statistics",
-			"style": {
-				"navigationBarTitleText": "消费统计"
-			}
-		},
-		{
-			"path": "pages/bill/category",
-			"style": {
-				"navigationBarTitleText": "分类管理"
-			}
-		},
-		{
-			"path": "pages/todo/index",
-			"style": {
-				"navigationBarTitleText": "待办事项"
-			}
-		},
-		{
-			"path": "pages/todo/add",
-			"style": {
-				"navigationBarTitleText": "添加待办"
-			}
-		},
-		{
-			"path": "pages/note/index",
-			"style": {
-				"navigationBarTitleText": "笔记管理"
-			}
-		},
-		{
-			"path": "pages/note/add",
-			"style": {
-				"navigationBarTitleText": "新建笔记"
-			}
-		},
-		{
-			"path": "pages/note/category",
-			"style": {
-				"navigationBarTitleText": "笔记分类"
-			}
-		},
-		{
-			"path": "pages/food/index",
-			"style": {
-				"navigationBarTitleText": "美食记录"
-			}
-		},
-		{
-			"path": "pages/food/add",
-			"style": {
-				"navigationBarTitleText": "添加美食"
-			}
-		},
-		{
-			"path": "pages/food/nutrition",
-			"style": {
-				"navigationBarTitleText": "营养统计"
-			}
-		},
-		{
-			"path": "pages/food/category",
-			"style": {
-				"navigationBarTitleText": "美食分类"
-			}
-		},
-		{
-			"path": "pages/friend/index",
-			"style": {
-				"navigationBarTitleText": "朋友管理"
-			}
-		},
-		{
-			"path": "pages/friend/add",
-			"style": {
-				"navigationBarTitleText": "添加朋友"
-			}
-		},
-		{
-			"path": "pages/friend/birthday",
-			"style": {
-				"navigationBarTitleText": "生日提醒"
-			}
-		},
-		{
-			"path": "pages/appearance/index",
-			"style": {
-				"navigationBarTitleText": "形象管理"
+				"navigationBarTitleText": "形象记录",
+				"navigationBarBackgroundColor": "#007AFF",
+				"navigationBarTextStyle": "white"
 			}
 		},
 		{
 			"path": "pages/appearance/add",
 			"style": {
-				"navigationBarTitleText": "添加形象记录"
+				"navigationBarTitleText": "添加形象记录",
+				"navigationBarBackgroundColor": "#007AFF",
+				"navigationBarTextStyle": "white"
 			}
 		},
 		{
-			"path": "pages/diary/index",
+			"path": "pages/appearance/detail",
 			"style": {
-				"navigationBarTitleText": "我的日记"
-			}
-		},
-		{
-			"path": "pages/diary/add",
-			"style": {
-				"navigationBarTitleText": "写日记"
+				"navigationBarTitleText": "形象详情",
+				"navigationBarBackgroundColor": "#007AFF",
+				"navigationBarTextStyle": "white"
 			}
 		},
 		{
 			"path": "pages/profile/index",
 			"style": {
-				"navigationBarTitleText": "个人设置"
+				"navigationBarTitleText": "我的",
+				"navigationBarBackgroundColor": "#007AFF",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "pages/login/index",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"navigationStyle": "custom"
 			}
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "white",
-		"navigationBarTitleText": "日常助手",
+		"navigationBarTitleText": "DailyApp",
 		"navigationBarBackgroundColor": "#007AFF",
-		"backgroundColor": "#f8f8f8",
-		"backgroundColorTop": "#f8f8f8",
-		"backgroundColorBottom": "#f8f8f8"
+		"backgroundColor": "#F8F8F8"
 	},
 	"tabBar": {
 		"color": "#7A7E83",
@@ -158,25 +56,7 @@
 				"pagePath": "pages/index/index",
 				"iconPath": "static/tabbar/home.png",
 				"selectedIconPath": "static/tabbar/home-active.png",
-				"text": "首页"
-			},
-			{
-				"pagePath": "pages/bill/index",
-				"iconPath": "static/tabbar/bill.png",
-				"selectedIconPath": "static/tabbar/bill-active.png",
-				"text": "账单"
-			},
-			{
-				"pagePath": "pages/todo/index",
-				"iconPath": "static/tabbar/todo.png",
-				"selectedIconPath": "static/tabbar/todo-active.png",
-				"text": "待办"
-			},
-			{
-				"pagePath": "pages/note/index",
-				"iconPath": "static/tabbar/note.png",
-				"selectedIconPath": "static/tabbar/note-active.png",
-				"text": "笔记"
+				"text": "形象记录"
 			},
 			{
 				"pagePath": "pages/profile/index",
@@ -185,6 +65,5 @@
 				"text": "我的"
 			}
 		]
-	},
-	"uniIdRouter": {}
+	}
 }

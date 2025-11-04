@@ -1,0 +1,113 @@
+// Prisma数据库模式定义
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// 用户表
+model User {
+  id          String   @id @default(uuid())
+  username    String   @unique
+  email       String   @unique
+  password    String
+  avatar      String?
+  deviceInfo  Json?    @map("device_info")
+  lastSyncAt  DateTime? @map("last_sync_at")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  appearances Appearance[]
+  devices     UserDevice[]
+  syncLogs    SyncLog[]
+
+  @@map("users")
+}
+
+// 用户设备表
+model UserDevice {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  deviceId   String   @map("device_id")
+  deviceName String   @map("device_name")
+  platform   String   // ios, android, web
+  appVersion String?  @map("app_version")
+  lastActive DateTime @default(now()) @map("last_active")
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // 关联关系
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, deviceId])
+  @@map("user_devices")
+}
+
+// 形象管理表
+model Appearance {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  title       String
+  description String?   @db.Text
+  photos      Json      // 存储照片URL数组
+  mood        String?   // 心情
+  weather     String?   // 天气
+  occasion    String?   // 场合
+  rating      Int?      @db.TinyInt // 满意度评分 1-5
+  tags        Json?     // 标签数组
+  isPrivate   Boolean   @default(false) @map("is_private")
+  
+  // 同步相关字段
+  version     Int       @default(1)
+  syncStatus  String    @default("synced") @map("sync_status") // local, synced, conflict
+  deviceId    String?   @map("device_id")
+  lastModified DateTime @default(now()) @map("last_modified")
+  
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  // 关联关系
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, syncStatus])
+  @@map("appearances")
+}
+
+// 同步日志表
+model SyncLog {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  tableName       String   @map("table_name")
+  recordId        String   @map("record_id")
+  operation       String   // create, update, delete
+  oldData         Json?    @map("old_data")
+  newData         Json?    @map("new_data")
+  conflictResolved Boolean @default(false) @map("conflict_resolved")
+  deviceId        String?  @map("device_id")
+  syncedAt        DateTime @default(now()) @map("synced_at")
+
+  // 关联关系
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, tableName])
+  @@index([syncedAt])
+  @@map("sync_logs")
+}
+
+// 系统配置表
+model SystemConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_configs")
+}

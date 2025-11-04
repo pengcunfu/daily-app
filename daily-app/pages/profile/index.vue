@@ -1,849 +1,485 @@
 <template>
-  <view class="profile-container">
-    <!-- 用户信息头部 -->
-    <view class="profile-header">
-      <view class="header-bg"></view>
+  <view class="container">
+    <!-- 用户信息区域 -->
+    <view class="user-section">
       <view class="user-info">
-        <view class="avatar-wrapper" @tap="changeAvatar">
-          <image 
-            :src="userInfo.profile?.avatar || '/static/default-avatar.png'" 
-            class="avatar"
-            mode="aspectFill"
-          ></image>
-          <view class="avatar-edit">
-            <text class="iconfont icon-camera"></text>
-          </view>
-        </view>
+        <image 
+          :src="userInfo.avatar || '/static/default-avatar.png'" 
+          class="avatar"
+          mode="aspectFill"
+        ></image>
         <view class="user-details">
-          <view class="username">{{ userInfo.username || '用户' }}</view>
-          <view class="email">{{ userInfo.email || '' }}</view>
+          <text class="username">{{ userInfo.username || '未登录用户' }}</text>
+          <text class="user-desc">{{ userInfo.email || '点击登录享受更多功能' }}</text>
+        </view>
+        <view class="login-btn" @click="handleLogin">
+          <text class="login-text">{{ isLoggedIn ? '已登录' : '登录' }}</text>
         </view>
       </view>
     </view>
-    
-    <!-- 统计数据 -->
+
+    <!-- 统计信息 -->
     <view class="stats-section">
-      <view class="stat-item" @tap="goToPage('/pages/bill/index')">
-        <view class="stat-number">{{ userStats.billCount || 0 }}</view>
-        <view class="stat-label">账单记录</view>
+      <view class="stat-item">
+        <text class="stat-number">{{ totalRecords }}</text>
+        <text class="stat-label">总记录</text>
       </view>
-      <view class="stat-item" @tap="goToPage('/pages/todo/index')">
-        <view class="stat-number">{{ userStats.todoCount || 0 }}</view>
-        <view class="stat-label">待办事项</view>
+      <view class="stat-item">
+        <text class="stat-number">{{ thisMonthRecords }}</text>
+        <text class="stat-label">本月记录</text>
       </view>
-      <view class="stat-item" @tap="goToPage('/pages/note/index')">
-        <view class="stat-number">{{ userStats.noteCount || 0 }}</view>
-        <view class="stat-label">笔记数量</view>
+      <view class="stat-item">
+        <text class="stat-number">{{ avgRating.toFixed(1) }}</text>
+        <text class="stat-label">平均评分</text>
       </view>
-      <view class="stat-item" @tap="goToPage('/pages/friend/index')">
-        <view class="stat-number">{{ userStats.friendCount || 0 }}</view>
-        <view class="stat-label">朋友数量</view>
-      </view>
-      <view class="stat-item" @tap="goToPage('/pages/food/index')">
-        <view class="stat-number">{{ userStats.foodCount || 0 }}</view>
-        <view class="stat-label">美食记录</view>
-      </view>
-      <view class="stat-item" @tap="goToPage('/pages/appearance/index')">
-        <view class="stat-number">{{ userStats.appearanceCount || 0 }}</view>
-        <view class="stat-label">形象记录</view>
+      <view class="stat-item">
+        <text class="stat-number">{{ continuousDays }}</text>
+        <text class="stat-label">连续天数</text>
       </view>
     </view>
-    
+
     <!-- 功能菜单 -->
     <view class="menu-section">
       <view class="menu-group">
-        <view class="group-title">数据管理</view>
-        <view class="menu-item" @tap="goToPage('/pages/bill/statistics')">
-          <view class="menu-icon" style="background: #FF6B6B;">
-            <text class="iconfont icon-chart">📊</text>
-          </view>
-          <view class="menu-content">
-            <view class="menu-title">消费统计</view>
-            <view class="menu-desc">查看消费趋势和分析</view>
-          </view>
-          <view class="menu-arrow">
-            <text class="iconfont icon-arrow">></text>
-          </view>
+        <view class="menu-item" @click="goToDataManage">
+          <view class="menu-icon">📊</view>
+          <text class="menu-text">数据管理</text>
+          <text class="menu-arrow">></text>
         </view>
         
-        <view class="menu-item" @tap="goToPage('/pages/bill/category')">
-          <view class="menu-icon" style="background: #4ECDC4;">
-            <text class="iconfont icon-category">📋</text>
+        <view class="menu-item" @click="goToSync">
+          <view class="menu-icon">🔄</view>
+          <text class="menu-text">数据同步</text>
+          <view class="sync-status">
+            <text class="sync-text">{{ syncStatus }}</text>
           </view>
-          <view class="menu-content">
-            <view class="menu-title">分类管理</view>
-            <view class="menu-desc">管理账单和笔记分类</view>
-          </view>
-          <view class="menu-arrow">
-            <text class="iconfont icon-arrow">></text>
-          </view>
+          <text class="menu-arrow">></text>
         </view>
         
-        <view class="menu-item" @tap="goToPage('/pages/friend/birthday')">
-          <view class="menu-icon" style="background: #45B7D1;">
-            <text class="iconfont icon-birthday">🎂</text>
-          </view>
-          <view class="menu-content">
-            <view class="menu-title">生日提醒</view>
-            <view class="menu-desc">朋友生日提醒设置</view>
-          </view>
-          <view class="menu-arrow">
-            <text class="iconfont icon-arrow">></text>
-          </view>
-        </view>
-
-        <view class="menu-item" @tap="goToPage('/pages/food/nutrition')">
-          <view class="menu-icon" style="background: #FFA726;">
-            <text class="iconfont icon-nutrition">🥗</text>
-          </view>
-          <view class="menu-content">
-            <view class="menu-title">营养统计</view>
-            <view class="menu-desc">查看营养摄入情况</view>
-          </view>
-          <view class="menu-arrow">
-            <text class="iconfont icon-arrow">></text>
-          </view>
-        </view>
-
-        <view class="menu-item" @tap="goToPage('/pages/diary/index')">
-          <view class="menu-icon" style="background: #AB47BC;">
-            <text class="iconfont icon-diary">📝</text>
-          </view>
-          <view class="menu-content">
-            <view class="menu-title">我的日记</view>
-            <view class="menu-desc">记录生活点滴</view>
-          </view>
-          <view class="menu-arrow">
-            <text class="iconfont icon-arrow">></text>
-          </view>
+        <view class="menu-item" @click="goToBackup">
+          <view class="menu-icon">💾</view>
+          <text class="menu-text">数据备份</text>
+          <text class="menu-arrow">></text>
         </view>
       </view>
-      
+
       <view class="menu-group">
-        <view class="group-title">个人设置</view>
-        <view class="menu-item" @tap="showEditProfile">
-          <view class="menu-icon" style="background: #96CEB4;">
-            <text class="iconfont icon-user">👤</text>
-          </view>
-          <view class="menu-content">
-            <view class="menu-title">个人资料</view>
-            <view class="menu-desc">编辑个人信息</view>
-          </view>
-          <view class="menu-arrow">
-            <text class="iconfont icon-arrow">></text>
-          </view>
+        <view class="menu-item" @click="goToSettings">
+          <view class="menu-icon">⚙️</view>
+          <text class="menu-text">设置</text>
+          <text class="menu-arrow">></text>
         </view>
         
-        <view class="menu-item" @tap="showChangePassword">
-          <view class="menu-icon" style="background: #FFEAA7;">
-            <text class="iconfont icon-lock">🔒</text>
-          </view>
-          <view class="menu-content">
-            <view class="menu-title">修改密码</view>
-            <view class="menu-desc">更改登录密码</view>
-          </view>
-          <view class="menu-arrow">
-            <text class="iconfont icon-arrow">></text>
-          </view>
+        <view class="menu-item" @click="goToHelp">
+          <view class="menu-icon">❓</view>
+          <text class="menu-text">帮助与反馈</text>
+          <text class="menu-arrow">></text>
         </view>
         
-        <view class="menu-item" @tap="showSettings">
-          <view class="menu-icon" style="background: #DDA0DD;">
-            <text class="iconfont icon-setting">⚙️</text>
-          </view>
-          <view class="menu-content">
-            <view class="menu-title">应用设置</view>
-            <view class="menu-desc">通知、主题等设置</view>
-          </view>
-          <view class="menu-arrow">
-            <text class="iconfont icon-arrow">></text>
-          </view>
-        </view>
-      </view>
-      
-      <view class="menu-group">
-        <view class="group-title">其他</view>
-        <view class="menu-item" @tap="showAbout">
-          <view class="menu-icon" style="background: #98D8C8;">
-            <text class="iconfont icon-info">ℹ️</text>
-          </view>
-          <view class="menu-content">
-            <view class="menu-title">关于应用</view>
-            <view class="menu-desc">版本信息和帮助</view>
-          </view>
-          <view class="menu-arrow">
-            <text class="iconfont icon-arrow">></text>
-          </view>
-        </view>
-        
-        <view class="menu-item logout" @tap="showLogoutConfirm">
-          <view class="menu-icon" style="background: #FF6B6B;">
-            <text class="iconfont icon-logout">🚪</text>
-          </view>
-          <view class="menu-content">
-            <view class="menu-title">退出登录</view>
-            <view class="menu-desc">安全退出当前账号</view>
-          </view>
-          <view class="menu-arrow">
-            <text class="iconfont icon-arrow">></text>
-          </view>
+        <view class="menu-item" @click="goToAbout">
+          <view class="menu-icon">ℹ️</view>
+          <text class="menu-text">关于我们</text>
+          <text class="menu-arrow">></text>
         </view>
       </view>
     </view>
-    
-    <!-- 编辑资料弹窗 -->
-    <uni-popup ref="profilePopup" type="center">
-      <view class="popup-content">
-        <view class="popup-header">
-          <text class="popup-title">编辑资料</text>
-          <text class="popup-close" @tap="closeEditProfile">×</text>
-        </view>
-        <view class="form-content">
-          <view class="form-item">
-            <text class="form-label">昵称</text>
-            <input 
-              class="form-input"
-              v-model="profileForm.username"
-              placeholder="请输入昵称"
-              maxlength="20"
-            />
-          </view>
-          <view class="form-item">
-            <text class="form-label">邮箱</text>
-            <input 
-              class="form-input"
-              v-model="profileForm.email"
-              placeholder="请输入邮箱"
-              type="email"
-            />
-          </view>
-          <view class="form-item">
-            <text class="form-label">手机</text>
-            <input 
-              class="form-input"
-              v-model="profileForm.phone"
-              placeholder="请输入手机号"
-              type="number"
-            />
-          </view>
-          <view class="form-item">
-            <text class="form-label">地址</text>
-            <input 
-              class="form-input"
-              v-model="profileForm.address"
-              placeholder="请输入地址"
-            />
-          </view>
-          <view class="form-item">
-            <text class="form-label">简介</text>
-            <textarea 
-              class="form-textarea"
-              v-model="profileForm.bio"
-              placeholder="请输入个人简介"
-              maxlength="200"
-            ></textarea>
-          </view>
-        </view>
-        <view class="popup-actions">
-          <button class="popup-btn cancel" @tap="closeEditProfile">取消</button>
-          <button class="popup-btn confirm" @tap="saveProfile">保存</button>
-        </view>
-      </view>
-    </uni-popup>
-    
-    <!-- 修改密码弹窗 -->
-    <uni-popup ref="passwordPopup" type="center">
-      <view class="popup-content">
-        <view class="popup-header">
-          <text class="popup-title">修改密码</text>
-          <text class="popup-close" @tap="closeChangePassword">×</text>
-        </view>
-        <view class="form-content">
-          <view class="form-item">
-            <text class="form-label">当前密码</text>
-            <input 
-              class="form-input"
-              v-model="passwordForm.currentPassword"
-              placeholder="请输入当前密码"
-              type="password"
-            />
-          </view>
-          <view class="form-item">
-            <text class="form-label">新密码</text>
-            <input 
-              class="form-input"
-              v-model="passwordForm.newPassword"
-              placeholder="请输入新密码"
-              type="password"
-            />
-          </view>
-          <view class="form-item">
-            <text class="form-label">确认密码</text>
-            <input 
-              class="form-input"
-              v-model="passwordForm.confirmPassword"
-              placeholder="请再次输入新密码"
-              type="password"
-            />
-          </view>
-        </view>
-        <view class="popup-actions">
-          <button class="popup-btn cancel" @tap="closeChangePassword">取消</button>
-          <button class="popup-btn confirm" @tap="savePassword">确认修改</button>
-        </view>
-      </view>
-    </uni-popup>
-    
-    <!-- 退出登录确认 -->
-    <uni-popup ref="logoutPopup" type="dialog">
-      <uni-popup-dialog 
-        type="warn"
-        title="确认退出"
-        content="确定要退出登录吗？"
-        @confirm="confirmLogout"
-        @close="cancelLogout"
-      ></uni-popup-dialog>
-    </uni-popup>
+
+    <!-- 退出登录按钮 -->
+    <view v-if="isLoggedIn" class="logout-section">
+      <button class="logout-btn" @click="handleLogout">
+        退出登录
+      </button>
+    </view>
   </view>
 </template>
 
 <script>
-import { useUserStore } from '@/stores/user'
-
 export default {
-  name: 'Profile',
   data() {
     return {
       userInfo: {},
-      userStats: {},
-      profileForm: {
-        username: '',
-        email: '',
-        phone: '',
-        address: '',
-        bio: ''
-      },
-      passwordForm: {
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+      appearanceList: [],
+      isLoggedIn: false,
+      syncStatus: '本地存储'
+    }
+  },
+  
+  computed: {
+    totalRecords() {
+      return this.appearanceList.length
+    },
+    
+    thisMonthRecords() {
+      const now = new Date()
+      const currentMonth = now.getMonth()
+      const currentYear = now.getFullYear()
+      
+      return this.appearanceList.filter(item => {
+        const itemDate = new Date(item.createdAt)
+        return itemDate.getMonth() === currentMonth && itemDate.getFullYear() === currentYear
+      }).length
+    },
+    
+    avgRating() {
+      if (this.appearanceList.length === 0) return 0
+      const totalRating = this.appearanceList.reduce((sum, item) => sum + (item.rating || 0), 0)
+      return totalRating / this.appearanceList.length
+    },
+    
+    continuousDays() {
+      // 计算连续记录天数
+      if (this.appearanceList.length === 0) return 0
+      
+      const sortedList = this.appearanceList
+        .map(item => new Date(item.createdAt).toDateString())
+        .filter((date, index, arr) => arr.indexOf(date) === index)
+        .sort((a, b) => new Date(b) - new Date(a))
+      
+      let continuous = 1
+      const today = new Date().toDateString()
+      
+      if (sortedList[0] !== today) return 0
+      
+      for (let i = 1; i < sortedList.length; i++) {
+        const currentDate = new Date(sortedList[i])
+        const prevDate = new Date(sortedList[i - 1])
+        const diffDays = (prevDate - currentDate) / (1000 * 60 * 60 * 24)
+        
+        if (diffDays === 1) {
+          continuous++
+        } else {
+          break
+        }
       }
+      
+      return continuous
     }
   },
   
   onShow() {
     this.loadUserInfo()
-    this.loadUserStats()
+    this.loadAppearanceData()
   },
   
   methods: {
-    // 加载用户信息
     loadUserInfo() {
-      const userStore = useUserStore()
-      this.userInfo = userStore.userInfo || {}
-      
-      // 初始化表单数据
-      this.profileForm = {
-        username: this.userInfo.username || '',
-        email: this.userInfo.email || '',
-        phone: this.userInfo.profile?.phone || '',
-        address: this.userInfo.profile?.address || '',
-        bio: this.userInfo.profile?.bio || ''
+      // 从本地存储加载用户信息
+      const userInfo = uni.getStorageSync('userInfo')
+      if (userInfo) {
+        this.userInfo = userInfo
+        this.isLoggedIn = true
+        this.syncStatus = '已同步'
+      } else {
+        this.userInfo = {}
+        this.isLoggedIn = false
+        this.syncStatus = '本地存储'
       }
     },
     
-    // 加载用户统计数据
-    async loadUserStats() {
-      // 这里可以调用API获取用户统计数据
-      // 暂时使用模拟数据
-      this.userStats = {
-        billCount: 128,
-        todoCount: 23,
-        noteCount: 45,
-        friendCount: 12
+    loadAppearanceData() {
+      // 加载形象记录数据
+      const appearanceList = uni.getStorageSync('appearanceList') || []
+      this.appearanceList = appearanceList
+    },
+    
+    handleLogin() {
+      if (this.isLoggedIn) {
+        // 已登录，显示用户信息
+        uni.showToast({
+          title: '已登录',
+          icon: 'success'
+        })
+      } else {
+        // 未登录，跳转到登录页
+        uni.navigateTo({
+          url: '/pages/login/index'
+        })
       }
     },
     
-    // 更换头像
-    changeAvatar() {
-      uni.chooseImage({
-        count: 1,
-        sizeType: ['compressed'],
-        sourceType: ['album', 'camera'],
-        success: (res) => {
-          // 这里应该上传头像到服务器
-          // 暂时只显示提示
+    async handleLogout() {
+      try {
+        const result = await uni.showModal({
+          title: '确认退出',
+          content: '退出登录后，数据将只保存在本地',
+          confirmColor: '#FF6B6B'
+        })
+        
+        if (result.confirm) {
+          // 清除用户信息
+          uni.removeStorageSync('userInfo')
+          uni.removeStorageSync('token')
+          
+          this.userInfo = {}
+          this.isLoggedIn = false
+          this.syncStatus = '本地存储'
+          
           uni.showToast({
-            title: '头像上传功能开发中',
-            icon: 'none'
+            title: '已退出登录',
+            icon: 'success'
           })
+        }
+      } catch (error) {
+        console.error('退出登录失败:', error)
+      }
+    },
+    
+    goToDataManage() {
+      uni.showActionSheet({
+        itemList: ['导出数据', '导入数据', '清空数据'],
+        success: (res) => {
+          switch (res.tapIndex) {
+            case 0:
+              this.exportData()
+              break
+            case 1:
+              this.importData()
+              break
+            case 2:
+              this.clearData()
+              break
+          }
         }
       })
     },
     
-    // 显示编辑资料弹窗
-    showEditProfile() {
-      this.$refs.profilePopup.open()
-    },
-    
-    // 关闭编辑资料弹窗
-    closeEditProfile() {
-      this.$refs.profilePopup.close()
-    },
-    
-    // 保存个人资料
-    async saveProfile() {
+    async exportData() {
       try {
-        const userStore = useUserStore()
-        
-        const updateData = {
-          email: this.profileForm.email,
-          profile: {
-            phone: this.profileForm.phone,
-            address: this.profileForm.address,
-            bio: this.profileForm.bio
-          }
+        const data = {
+          appearanceList: this.appearanceList,
+          userInfo: this.userInfo,
+          exportTime: new Date().toISOString()
         }
         
-        await userStore.updateProfile(updateData)
-        
-        this.loadUserInfo()
-        this.closeEditProfile()
-        
+        // TODO: 实现数据导出功能
         uni.showToast({
-          title: '保存成功',
-          icon: 'success'
+          title: '导出功能开发中',
+          icon: 'none'
         })
-        
       } catch (error) {
-        console.error('保存失败:', error)
-        uni.showToast({
-          title: error.message || '保存失败',
-          icon: 'none'
-        })
+        console.error('导出数据失败:', error)
       }
     },
     
-    // 显示修改密码弹窗
-    showChangePassword() {
-      this.passwordForm = {
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      }
-      this.$refs.passwordPopup.open()
+    importData() {
+      // TODO: 实现数据导入功能
+      uni.showToast({
+        title: '导入功能开发中',
+        icon: 'none'
+      })
     },
     
-    // 关闭修改密码弹窗
-    closeChangePassword() {
-      this.$refs.passwordPopup.close()
-    },
-    
-    // 保存密码
-    async savePassword() {
-      if (!this.passwordForm.currentPassword) {
-        uni.showToast({
-          title: '请输入当前密码',
-          icon: 'none'
-        })
-        return
-      }
-      
-      if (!this.passwordForm.newPassword) {
-        uni.showToast({
-          title: '请输入新密码',
-          icon: 'none'
-        })
-        return
-      }
-      
-      if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
-        uni.showToast({
-          title: '两次输入的密码不一致',
-          icon: 'none'
-        })
-        return
-      }
-      
-      if (this.passwordForm.newPassword.length < 6) {
-        uni.showToast({
-          title: '新密码至少6位',
-          icon: 'none'
-        })
-        return
-      }
-      
+    async clearData() {
       try {
-        const userStore = useUserStore()
-        
-        await userStore.changePassword({
-          currentPassword: this.passwordForm.currentPassword,
-          newPassword: this.passwordForm.newPassword
+        const result = await uni.showModal({
+          title: '确认清空',
+          content: '清空后数据无法恢复，确定要清空所有数据吗？',
+          confirmColor: '#FF6B6B'
         })
         
-        this.closeChangePassword()
-        
-        uni.showToast({
-          title: '密码修改成功',
-          icon: 'success'
-        })
-        
+        if (result.confirm) {
+          uni.removeStorageSync('appearanceList')
+          this.appearanceList = []
+          
+          uni.showToast({
+            title: '数据已清空',
+            icon: 'success'
+          })
+        }
       } catch (error) {
-        console.error('修改密码失败:', error)
+        console.error('清空数据失败:', error)
+      }
+    },
+    
+    goToSync() {
+      if (this.isLoggedIn) {
+        // TODO: 实现数据同步功能
         uni.showToast({
-          title: error.message || '修改失败',
+          title: '同步功能开发中',
+          icon: 'none'
+        })
+      } else {
+        uni.showToast({
+          title: '请先登录',
           icon: 'none'
         })
       }
     },
     
-    // 显示设置页面
-    showSettings() {
+    goToBackup() {
+      // TODO: 实现数据备份功能
+      uni.showToast({
+        title: '备份功能开发中',
+        icon: 'none'
+      })
+    },
+    
+    goToSettings() {
+      // TODO: 实现设置页面
       uni.showToast({
         title: '设置功能开发中',
         icon: 'none'
       })
     },
     
-    // 显示关于页面
-    showAbout() {
-      uni.showModal({
-        title: '关于日常助手',
-        content: '版本：1.0.0\n\n一款简洁实用的日常管理应用，帮助您更好地管理生活中的各种事务。',
-        showCancel: false
+    goToHelp() {
+      // TODO: 实现帮助页面
+      uni.showToast({
+        title: '帮助功能开发中',
+        icon: 'none'
       })
     },
     
-    // 显示退出登录确认
-    showLogoutConfirm() {
-      this.$refs.logoutPopup.open()
-    },
-    
-    // 确认退出登录
-    async confirmLogout() {
-      try {
-        const userStore = useUserStore()
-        await userStore.logout()
-        
-        // 已经在store中处理了跳转
-        this.$refs.logoutPopup.close()
-        
-      } catch (error) {
-        console.error('退出登录失败:', error)
-      }
-    },
-    
-    // 取消退出登录
-    cancelLogout() {
-      this.$refs.logoutPopup.close()
-    },
-    
-    // 跳转页面
-    goToPage(url) {
-      if (url.includes('/pages/bill/index') || 
-          url.includes('/pages/todo/index') || 
-          url.includes('/pages/note/index') ||
-          url.includes('/pages/friend/index')) {
-        uni.switchTab({ url })
-      } else {
-        uni.navigateTo({ url })
-      }
+    goToAbout() {
+      uni.showModal({
+        title: 'DailyApp',
+        content: '版本 1.0.0\n\n一个简单易用的形象管理应用\n记录每天的美好瞬间',
+        showCancel: false
+      })
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
-.profile-container {
-  background: #f8f9fa;
+<style scoped>
+.container {
+  background-color: #f8f9fa;
   min-height: 100vh;
 }
 
-.profile-header {
-  position: relative;
-  height: 400rpx;
-  
-  .header-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 320rpx;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  }
-  
-  .user-info {
-    position: absolute;
-    top: 120rpx;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    
-    .avatar-wrapper {
-      position: relative;
-      margin-bottom: 24rpx;
-      
-      .avatar {
-        width: 160rpx;
-        height: 160rpx;
-        border-radius: 80rpx;
-        border: 6rpx solid #ffffff;
-        box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
-      }
-      
-      .avatar-edit {
-        position: absolute;
-        right: 8rpx;
-        bottom: 8rpx;
-        width: 48rpx;
-        height: 48rpx;
-        background: #007AFF;
-        border-radius: 24rpx;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 3rpx solid #ffffff;
-        
-        .iconfont {
-          font-size: 24rpx;
-          color: #ffffff;
-        }
-      }
-    }
-    
-    .user-details {
-      text-align: center;
-      
-      .username {
-        font-size: 36rpx;
-        font-weight: bold;
-        color: #333333;
-        margin-bottom: 8rpx;
-      }
-      
-      .email {
-        font-size: 26rpx;
-        color: #666666;
-      }
-    }
-  }
+.user-section {
+  background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+  padding: 60rpx 30rpx 40rpx;
+  color: white;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  margin-right: 30rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.user-details {
+  flex: 1;
+}
+
+.username {
+  display: block;
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.user-desc {
+  font-size: 26rpx;
+  opacity: 0.8;
+}
+
+.login-btn {
+  padding: 15rpx 30rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 25rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.login-text {
+  font-size: 26rpx;
 }
 
 .stats-section {
+  background: white;
+  margin: 20rpx;
+  border-radius: 20rpx;
+  padding: 30rpx;
   display: flex;
-  padding: 32rpx;
-  gap: 16rpx;
-  
-  .stat-item {
-    flex: 1;
-    background: #ffffff;
-    border-radius: 16rpx;
-    padding: 32rpx 16rpx;
-    text-align: center;
-    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
-    
-    &:active {
-      transform: translateY(2rpx);
-    }
-    
-    .stat-number {
-      font-size: 48rpx;
-      font-weight: bold;
-      color: #007AFF;
-      margin-bottom: 8rpx;
-    }
-    
-    .stat-label {
-      font-size: 24rpx;
-      color: #666666;
-    }
-  }
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #007AFF;
+  margin-bottom: 10rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #666;
 }
 
 .menu-section {
-  padding: 0 32rpx;
-  
-  .menu-group {
-    margin-bottom: 32rpx;
-    
-    .group-title {
-      font-size: 28rpx;
-      color: #666666;
-      margin-bottom: 16rpx;
-      padding-left: 16rpx;
-    }
-    
-    .menu-item {
-      display: flex;
-      align-items: center;
-      background: #ffffff;
-      padding: 32rpx;
-      border-radius: 16rpx;
-      margin-bottom: 16rpx;
-      box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-      transition: all 0.3s ease;
-      
-      &:active {
-        transform: translateY(2rpx);
-      }
-      
-      &.logout {
-        .menu-title {
-          color: #dc3545;
-        }
-      }
-      
-      .menu-icon {
-        width: 80rpx;
-        height: 80rpx;
-        border-radius: 40rpx;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 24rpx;
-        
-        .iconfont {
-          font-size: 32rpx;
-          color: #ffffff;
-        }
-      }
-      
-      .menu-content {
-        flex: 1;
-        
-        .menu-title {
-          font-size: 30rpx;
-          color: #333333;
-          margin-bottom: 8rpx;
-          font-weight: 500;
-        }
-        
-        .menu-desc {
-          font-size: 24rpx;
-          color: #999999;
-        }
-      }
-      
-      .menu-arrow {
-        .iconfont {
-          font-size: 24rpx;
-          color: #cccccc;
-        }
-      }
-    }
-  }
+  margin: 20rpx;
 }
 
-.popup-content {
-  background: #ffffff;
-  border-radius: 24rpx;
-  width: 640rpx;
-  max-height: 80vh;
+.menu-group {
+  background: white;
+  border-radius: 20rpx;
+  margin-bottom: 20rpx;
   overflow: hidden;
-  
-  .popup-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 32rpx;
-    border-bottom: 1rpx solid #f0f0f0;
-    
-    .popup-title {
-      font-size: 32rpx;
-      font-weight: bold;
-      color: #333333;
-    }
-    
-    .popup-close {
-      font-size: 48rpx;
-      color: #999999;
-      width: 48rpx;
-      height: 48rpx;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
-  
-  .form-content {
-    padding: 32rpx;
-    max-height: 50vh;
-    overflow-y: auto;
-    
-    .form-item {
-      margin-bottom: 32rpx;
-      
-      .form-label {
-        display: block;
-        font-size: 28rpx;
-        color: #333333;
-        margin-bottom: 16rpx;
-      }
-      
-      .form-input, .form-textarea {
-        width: 100%;
-        padding: 24rpx;
-        background: #f8f9fa;
-        border-radius: 12rpx;
-        font-size: 28rpx;
-        color: #333333;
-        border: 1rpx solid transparent;
-        box-sizing: border-box;
-        
-        &:focus {
-          border-color: #007AFF;
-          background: #ffffff;
-        }
-      }
-      
-      .form-textarea {
-        height: 120rpx;
-        resize: none;
-      }
-    }
-  }
-  
-  .popup-actions {
-    display: flex;
-    padding: 24rpx 32rpx 32rpx;
-    gap: 24rpx;
-    
-    .popup-btn {
-      flex: 1;
-      height: 80rpx;
-      border-radius: 40rpx;
-      font-size: 28rpx;
-      border: none;
-      
-      &.confirm {
-        background: #007AFF;
-        color: #ffffff;
-      }
-      
-      &.cancel {
-        background: #f8f9fa;
-        color: #666666;
-      }
-    }
-  }
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
 }
 
-/* 图标字体样式 */
-.iconfont {
-  font-family: 'iconfont';
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 2rpx solid #f5f5f5;
 }
 
-.icon-camera::before { content: '📷'; }
-.icon-chart::before { content: '📊'; }
-.icon-category::before { content: '📋'; }
-.icon-birthday::before { content: '🎂'; }
-.icon-user::before { content: '👤'; }
-.icon-lock::before { content: '🔒'; }
-.icon-setting::before { content: '⚙️'; }
-.icon-info::before { content: 'ℹ️'; }
-.icon-logout::before { content: '🚪'; }
-.icon-arrow::before { content: '>'; }
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-icon {
+  font-size: 40rpx;
+  margin-right: 30rpx;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333;
+}
+
+.sync-status {
+  margin-right: 20rpx;
+}
+
+.sync-text {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.menu-arrow {
+  font-size: 28rpx;
+  color: #ccc;
+}
+
+.logout-section {
+  margin: 40rpx 20rpx 20rpx;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 25rpx;
+  background: #FF6B6B;
+  color: white;
+  border: none;
+  border-radius: 15rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+}
 </style>

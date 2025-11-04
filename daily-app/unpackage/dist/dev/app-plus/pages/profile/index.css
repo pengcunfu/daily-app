@@ -1,0 +1,118 @@
+
+.container[data-v-201c0da5] {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+.user-section[data-v-201c0da5] {
+  background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+  padding: 1.875rem 0.9375rem 1.25rem;
+  color: white;
+}
+.user-info[data-v-201c0da5] {
+  display: flex;
+  align-items: center;
+}
+.avatar[data-v-201c0da5] {
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 1.875rem;
+  margin-right: 0.9375rem;
+  border: 0.125rem solid rgba(255, 255, 255, 0.3);
+}
+.user-details[data-v-201c0da5] {
+  flex: 1;
+}
+.username[data-v-201c0da5] {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin-bottom: 0.3125rem;
+}
+.user-desc[data-v-201c0da5] {
+  font-size: 0.8125rem;
+  opacity: 0.8;
+}
+.login-btn[data-v-201c0da5] {
+  padding: 0.46875rem 0.9375rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 0.78125rem;
+  border: 0.0625rem solid rgba(255, 255, 255, 0.3);
+}
+.login-text[data-v-201c0da5] {
+  font-size: 0.8125rem;
+}
+.stats-section[data-v-201c0da5] {
+  background: white;
+  margin: 0.625rem;
+  border-radius: 0.625rem;
+  padding: 0.9375rem;
+  display: flex;
+  box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+}
+.stat-item[data-v-201c0da5] {
+  flex: 1;
+  text-align: center;
+}
+.stat-number[data-v-201c0da5] {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #007AFF;
+  margin-bottom: 0.3125rem;
+}
+.stat-label[data-v-201c0da5] {
+  font-size: 0.75rem;
+  color: #666;
+}
+.menu-section[data-v-201c0da5] {
+  margin: 0.625rem;
+}
+.menu-group[data-v-201c0da5] {
+  background: white;
+  border-radius: 0.625rem;
+  margin-bottom: 0.625rem;
+  overflow: hidden;
+  box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+}
+.menu-item[data-v-201c0da5] {
+  display: flex;
+  align-items: center;
+  padding: 0.9375rem;
+  border-bottom: 0.0625rem solid #f5f5f5;
+}
+.menu-item[data-v-201c0da5]:last-child {
+  border-bottom: none;
+}
+.menu-icon[data-v-201c0da5] {
+  font-size: 1.25rem;
+  margin-right: 0.9375rem;
+}
+.menu-text[data-v-201c0da5] {
+  flex: 1;
+  font-size: 0.9375rem;
+  color: #333;
+}
+.sync-status[data-v-201c0da5] {
+  margin-right: 0.625rem;
+}
+.sync-text[data-v-201c0da5] {
+  font-size: 0.75rem;
+  color: #999;
+}
+.menu-arrow[data-v-201c0da5] {
+  font-size: 0.875rem;
+  color: #ccc;
+}
+.logout-section[data-v-201c0da5] {
+  margin: 1.25rem 0.625rem 0.625rem;
+}
+.logout-btn[data-v-201c0da5] {
+  width: 100%;
+  padding: 0.78125rem;
+  background: #FF6B6B;
+  color: white;
+  border: none;
+  border-radius: 0.46875rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}

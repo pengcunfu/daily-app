@@ -1,31 +1,49 @@
-# Daily App Express Server
+# DailyApp 后端服务
 
-Express.js + MongoDB 后端服务，为日常助手应用提供 RESTful API。
+基于 Koa2 + Prisma + MySQL 的形象管理 API 服务。
 
-## 快速开始
+## 🚀 快速开始
 
-### 1. 安装依赖
+### 环境要求
+
+- Node.js 18+
+- MySQL 8.0+
+- npm 或 yarn
+
+### 安装依赖
+
 ```bash
 npm install
 ```
 
-### 2. 配置环境变量
-创建 `.env` 文件：
-```env
-PORT=3000
-NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/daily_app
-JWT_SECRET=your-super-secret-jwt-key
-JWT_EXPIRES_IN=7d
-CORS_ORIGIN=http://localhost:8080
-```
+### 环境配置
 
-### 3. 初始化数据
+1. 复制配置模板：
 ```bash
-npm run seed
+cp config.template .env
 ```
 
-### 4. 启动服务
+2. 修改 `.env` 文件中的配置：
+```env
+DATABASE_URL="mysql://username:password@localhost:3306/dailyapp"
+JWT_SECRET="your-super-secret-jwt-key"
+```
+
+### 数据库初始化
+
+```bash
+# 生成 Prisma 客户端
+npm run generate
+
+# 运行数据库迁移
+npm run migrate
+
+# 查看数据库（可选）
+npm run studio
+```
+
+### 启动服务
+
 ```bash
 # 开发模式
 npm run dev
@@ -34,132 +52,71 @@ npm run dev
 npm start
 ```
 
-## API 接口
+## 📚 API 文档
 
-### 认证
+### 认证接口
+
 - `POST /api/auth/register` - 用户注册
 - `POST /api/auth/login` - 用户登录
-- `GET /api/auth/profile` - 获取用户信息
-- `PUT /api/auth/profile` - 更新用户信息
-- `POST /api/auth/logout` - 用户登出
+- `POST /api/auth/refresh` - 刷新令牌
+- `POST /api/auth/logout` - 退出登录
 
-### 账单管理
-- `GET /api/bills` - 获取账单列表
-- `POST /api/bills` - 创建账单
-- `GET /api/bills/:id` - 获取单个账单
-- `PUT /api/bills/:id` - 更新账单
-- `DELETE /api/bills/:id` - 删除账单
-- `GET /api/bills/stats` - 获取消费统计
+### 形象管理接口
 
-### 待办事项
-- `GET /api/todos` - 获取待办列表
-- `POST /api/todos` - 创建待办
-- `PATCH /api/todos/:id/toggle` - 切换完成状态
+- `GET /api/appearances` - 获取形象记录列表
+- `POST /api/appearances` - 创建形象记录
+- `GET /api/appearances/:id` - 获取形象记录详情
+- `PUT /api/appearances/:id` - 更新形象记录
+- `DELETE /api/appearances/:id` - 删除形象记录
+- `GET /api/appearances/stats/summary` - 获取统计数据
 
-### 笔记管理
-- `GET /api/notes` - 获取笔记列表
-- `POST /api/notes` - 创建笔记
-- `GET /api/notes/types` - 获取笔记类型
+### 文件上传接口
 
-### 美食记录
-- `GET /api/foods` - 获取美食记录
-- `POST /api/foods` - 创建美食记录
-- `GET /api/foods/daily-nutrition` - 获取每日营养
+- `POST /api/upload/appearance` - 上传形象照片
+- `POST /api/upload/avatar` - 上传头像
 
-### 朋友管理
-- `GET /api/friends` - 获取朋友列表
-- `POST /api/friends` - 添加朋友
-- `GET /api/friends/birthdays` - 获取生日提醒
+### 用户管理接口
 
-## 数据模型
+- `GET /api/users/profile` - 获取用户信息
+- `PUT /api/users/profile` - 更新用户信息
 
-### User（用户）
-- username：用户名
-- email：邮箱
-- password：密码（加密）
-- profile：用户资料
+## 🗄️ 数据库结构
 
-### Bill（账单）
-- amount：金额
-- categoryId：分类ID
-- orderName：订单名称
-- spendingTime：消费时间
+主要数据表：
+- `users` - 用户表
+- `appearances` - 形象记录表
+- `user_devices` - 用户设备表
+- `sync_logs` - 同步日志表
 
-### Todo（待办）
-- title：标题
-- content：内容
-- priority：优先级（0-2）
-- status：状态（0未完成，1已完成）
+## 🔧 开发说明
 
-### Note（笔记）
-- title：标题
-- content：内容
-- typeId：类型ID
-- tags：标签
-
-### Food（美食）
-- name：食物名称
-- mealType：餐次类型
-- nutrition：营养信息
-- rating：评分
-
-### Friend（朋友）
-- name：姓名
-- relationship：关系类型
-- contacts：联系方式
-- birthDate：生日
-
-## 项目结构
+### 项目结构
 
 ```
-server_express/
-├── config/          # 配置文件
-│   ├── database.js  # 数据库连接
-│   └── jwt.js      # JWT 配置
-├── controllers/     # 控制器
-├── middleware/      # 中间件
-├── models/         # 数据模型
-├── routes/         # 路由定义
-├── scripts/        # 脚本文件
-└── app.js         # 应用入口
+src/
+├── app.js              # 应用入口
+├── config.js           # 配置文件
+├── middleware/         # 中间件
+├── routes/            # 路由
+├── services/          # 业务服务
+├── utils/             # 工具函数
+└── scripts/           # 脚本文件
 ```
 
-## 开发指南
+### 环境变量
 
-### 添加新模块
+参考 `config.template` 文件中的配置项。
 
-1. 创建模型文件 `models/NewModel.js`
-2. 创建控制器 `controllers/newController.js`
-3. 创建路由 `routes/new.js`
-4. 在 `routes/index.js` 中注册路由
-
-### 安全特性
-
-- JWT Token 认证
-- 密码 bcrypt 加密
-- 请求速率限制
-- CORS 跨域保护
-- 数据验证
-
-### 测试
+## 🐳 Docker 部署
 
 ```bash
-npm test
+# 构建镜像
+docker build -t daily-server .
+
+# 运行容器
+docker run -p 3000:3000 daily-server
 ```
 
-## 环境部署
+## 📝 许可证
 
-### Docker 部署
-
-```bash
-docker build -t daily-app-server .
-docker run -p 3000:3000 daily-app-server
-```
-
-### 生产环境
-
-1. 设置 `NODE_ENV=production`
-2. 配置强密码的 `JWT_SECRET`
-3. 设置 MongoDB 连接
-4. 配置 HTTPS
-5. 设置反向代理
+MIT License

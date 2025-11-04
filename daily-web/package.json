@@ -1,41 +1,31 @@
 {
-  "name": "vue-manage-system",
-  "version": "0.0.0",
-  "private": true,
+  "name": "daily-web",
+  "version": "1.0.0",
+  "description": "DailyApp 管理后台 - 形象管理系统",
+  "type": "module",
   "scripts": {
-    "build": "vite build",
     "dev": "vite",
-    "preview": "vite preview"
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext vue,js,ts --fix"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^1.1.4",
-    "axios": "^0.27.2",
-    "driver.js": "^0.9.8",
-    "echarts": "^5.3.3",
-    "element-plus": "^2.3.4",
-    "i": "^0.3.7",
-    "js-base64": "^3.7.2",
-    "js-cookie": "^3.0.1",
-    "mockjs": "^1.1.0",
-    "npm": "^9.6.4",
-    "nprogress": "^0.2.0",
-    "screenfull": "^6.0.1",
-    "sortablejs": "^1.15.0",
-    "vue": "^3.2.25",
-    "vue-router": "^4.0.13",
-    "vue3-print-nb": "^0.1.4",
-    "vuedraggable": "^4.1.0",
-    "vuex": "^4.0.2",
-    "vuex-persistedstate": "^4.1.0",
-    "xlsx": "^0.18.5"
+    "vue": "^3.3.8",
+    "vue-router": "^4.2.5",
+    "pinia": "^2.1.7",
+    "element-plus": "^2.4.2",
+    "@element-plus/icons-vue": "^2.1.0",
+    "axios": "^1.6.0",
+    "echarts": "^5.4.3",
+    "vue-echarts": "^6.6.1",
+    "dayjs": "^1.11.10",
+    "nprogress": "^0.2.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^2.3.1",
-    "sass": "^1.51.0",
-    "unplugin-element-plus": "^0.7.1",
-    "vite": "^2.9.7",
-    "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-mock": "^2.9.6",
-    "vue-cli-plugin-style-resources-loader": "~0.1.5"
+    "@vitejs/plugin-vue": "^4.4.1",
+    "vite": "^4.5.0",
+    "sass": "^1.69.5",
+    "unplugin-auto-import": "^0.16.7",
+    "unplugin-vue-components": "^0.25.2"
   }
 }
