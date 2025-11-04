@@ -7,11 +7,11 @@ const logger = require('../utils/logger')
 // 响应格式化中间件
 const responseHandler = async (ctx, next) => {
   // 添加成功响应方法
-  ctx.success = (data = null, message = '操作成功', code = 200) => {
-    ctx.status = code
+  ctx.success = (data = null, message = '操作成功', statusCode = 200) => {
+    ctx.status = statusCode
     ctx.body = {
       success: true,
-      code,
+      code: 0,
       message,
       data,
       timestamp: new Date().toISOString()
@@ -19,11 +19,11 @@ const responseHandler = async (ctx, next) => {
   }
 
   // 添加错误响应方法
-  ctx.error = (message = '操作失败', code = 400, data = null) => {
-    ctx.status = code
+  ctx.error = (message = '操作失败', statusCode = 400, data = null) => {
+    ctx.status = statusCode
     ctx.body = {
       success: false,
-      code,
+      code: statusCode,
       message,
       data,
       timestamp: new Date().toISOString()

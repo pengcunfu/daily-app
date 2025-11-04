@@ -329,16 +329,23 @@ const fetchAppearances = async () => {
     })
     
     const response = await getAppearances(params)
-    const { list, pagination: paginationData } = response.data
     
-    appearanceList.value = list.map(item => ({
-      ...item,
-      photos: JSON.parse(item.photos || '[]')
-    }))
-    
-    total.value = paginationData.total
+    if (response.success) {
+      const { list, pagination: paginationData } = response.data
+      
+      appearanceList.value = list.map(item => ({
+        ...item,
+        photos: typeof item.photos === 'string' ? JSON.parse(item.photos) : item.photos,
+        tags: typeof item.tags === 'string' ? JSON.parse(item.tags || '[]') : (item.tags || [])
+      }))
+      
+      total.value = paginationData.total
+    } else {
+      ElMessage.error(response.message || '获取形象记录失败')
+    }
   } catch (error) {
     console.error('获取形象记录失败:', error)
+    ElMessage.error('获取形象记录失败')
   } finally {
     loading.value = false
   }
@@ -407,21 +414,26 @@ const handleEdit = (item) => {
 const handleDelete = async (item) => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除形象记录"${item.title}"吗？`,
+      `确定要删除形象记录"${item.title}"吗？此操作不可恢复！`,
       '确认删除',
       {
-        confirmButtonText: '确定',
+        confirmButtonText: '确定删除',
         cancelButtonText: '取消',
         type: 'warning'
       }
     )
     
-    await deleteAppearance(item.id)
-    ElMessage.success('删除成功')
-    fetchAppearances()
+    const response = await deleteAppearance(item.id)
+    if (response.success) {
+      ElMessage.success('删除成功')
+      fetchAppearances()
+    } else {
+      ElMessage.error(response.message || '删除失败')
+    }
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除失败:', error)
+      ElMessage.error('删除失败')
     }
   }
 }
@@ -503,47 +515,71 @@ const handleSubmit = async () => {
   if (!formRef.value) return
   
   await formRef.value.validate(async (valid) => {
-    if (valid) {
-      submitting.value = true
-      try {
-        // 上传照片
-        const photoUrls = []
-        
-        for (const file of fileList.value) {
-          if (file.raw) {
-            // 新上传的文件
-            const formData = new FormData()
-            formData.append('photos', file.raw)
-            
-            const uploadResponse = await uploadAppearancePhotos(formData)
+    if (!valid) return
+    
+    submitting.value = true
+    try {
+      // 验证是否有照片
+      if (fileList.value.length === 0) {
+        ElMessage.warning('请至少上传一张照片')
+        submitting.value = false
+        return
+      }
+      
+      // 上传照片
+      const photoUrls = []
+      
+      for (const file of fileList.value) {
+        if (file.raw) {
+          // 新上传的文件
+          const formData = new FormData()
+          formData.append('photos', file.raw)
+          
+          const uploadResponse = await uploadAppearancePhotos(formData)
+          if (uploadResponse.success) {
             photoUrls.push(...uploadResponse.data.map(item => item.url))
           } else {
-            // 已存在的文件
-            photoUrls.push(file.url)
+            ElMessage.error(uploadResponse.message || '照片上传失败')
+            submitting.value = false
+            return
           }
-        }
-        
-        const submitData = {
-          ...form,
-          photos: photoUrls,
-          tags: form.tags.length > 0 ? form.tags : undefined
-        }
-        
-        if (editingItem.value) {
-          await updateAppearance(editingItem.value.id, submitData)
-          ElMessage.success('更新成功')
         } else {
-          await createAppearance(submitData)
-          ElMessage.success('创建成功')
+          // 已存在的文件
+          photoUrls.push(file.url)
         }
-        
+      }
+      
+      const submitData = {
+        title: form.title,
+        description: form.description || undefined,
+        photos: photoUrls,
+        mood: form.mood || undefined,
+        weather: form.weather || undefined,
+        occasion: form.occasion || undefined,
+        rating: form.rating || undefined,
+        tags: form.tags.length > 0 ? form.tags : undefined,
+        isPrivate: form.isPrivate
+      }
+      
+      let response
+      if (editingItem.value) {
+        response = await updateAppearance(editingItem.value.id, submitData)
+      } else {
+        response = await createAppearance(submitData)
+      }
+      
+      if (response.success) {
+        ElMessage.success(editingItem.value ? '更新成功' : '创建成功')
         handleCancel()
         fetchAppearances()
-      } catch (error) {
-        console.error('提交失败:', error)
-      } finally {
-        submitting.value = false
+      } else {
+        ElMessage.error(response.message || '操作失败')
       }
+    } catch (error) {
+      console.error('提交失败:', error)
+      ElMessage.error('操作失败')
+    } finally {
+      submitting.value = false
     }
   })
 }
