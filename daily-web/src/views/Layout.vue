@@ -4,7 +4,7 @@
       <!-- 侧边栏 -->
       <el-aside :width="isCollapse ? '64px' : '200px'" class="sidebar">
         <div class="logo">
-          <span v-if="!isCollapse">📱 DailyApp</span>
+          <span v-if="!isCollapse">日常助手</span>
           <span v-else>📱</span>
         </div>
         
