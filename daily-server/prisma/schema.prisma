@@ -25,6 +25,7 @@ model User {
   appearances Appearance[]
   devices     UserDevice[]
   syncLogs    SyncLog[]
+  friends     Friend[]
 
   @@map("users")
 }
@@ -110,4 +111,48 @@ model SystemConfig {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("system_configs")
+}
+
+// 好友管理表
+model Friend {
+  id              String    @id @default(uuid())
+  userId          String    @map("user_id")
+  name            String    // 姓名
+  nickname        String?   // 昵称
+  sex             Int       @default(1) @db.TinyInt // 1:男, 2:女
+  birthDate       DateTime? @map("birth_date") // 生日
+  birthType       Int       @default(2) @db.TinyInt // 1:农历, 2:公历
+  avatar          String?   // 头像
+  contacts        Json?     // 联系方式数组 [{type, value, label, isPrimary}]
+  liveAddress     String?   @db.VarChar(200) @map("live_address") // 居住地址
+  homeAddress     String?   @db.VarChar(200) @map("home_address") // 家庭地址
+  school          String?   @db.VarChar(100) // 学校
+  profession      String?   @db.VarChar(100) // 职业
+  disposition     String?   @db.VarChar(200) // 性格
+  hobbies         Json?     // 爱好数组
+  tags            Json?     // 标签数组
+  remark          String?   @db.Text // 备注
+  advantages      Json?     // 优点数组
+  disadvantages   Json?     // 缺点数组
+  relationship    String    @default("friend") // family, friend, colleague, classmate, other
+  importance      Int       @default(3) @db.TinyInt // 重要程度 1-5
+  lastContactDate DateTime? @map("last_contact_date") // 最后联系时间
+  
+  // 同步相关字段
+  version         Int       @default(1)
+  syncStatus      String    @default("synced") @map("sync_status")
+  deviceId        String?   @map("device_id")
+  lastModified    DateTime  @default(now()) @map("last_modified")
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  // 关联关系
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, deletedAt])
+  @@index([userId, relationship])
+  @@index([userId, importance])
+  @@map("friends")
 }

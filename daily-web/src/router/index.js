@@ -27,10 +27,16 @@ const routes = [
         meta: { title: '形象管理', icon: 'Camera' }
       },
       {
+        path: 'friends',
+        name: 'Friends',
+        component: () => import('@/views/Friends.vue'),
+        meta: { title: '好友管理', icon: 'User' }
+      },
+      {
         path: 'users',
         name: 'Users',
         component: () => import('@/views/Users.vue'),
-        meta: { title: '用户管理', icon: 'User' }
+        meta: { title: '用户管理', icon: 'UserFilled' }
       },
       {
         path: 'settings',

@@ -25,8 +25,13 @@
             <template #title>形象管理</template>
           </el-menu-item>
           
-          <el-menu-item index="/users">
+          <el-menu-item index="/friends">
             <el-icon><User /></el-icon>
+            <template #title>好友管理</template>
+          </el-menu-item>
+          
+          <el-menu-item index="/users">
+            <el-icon><UserFilled /></el-icon>
             <template #title>用户管理</template>
           </el-menu-item>
           

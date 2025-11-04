@@ -28,6 +28,7 @@ const appearanceRoutes = require('./routes/appearances')
 const uploadRoutes = require('./routes/upload')
 const syncRoutes = require('./routes/sync')
 const userRoutes = require('./routes/users')
+const friendRoutes = require('./routes/friends')
 
 const app = new Koa()
 const router = new Router()
@@ -150,6 +151,7 @@ app.use(authMiddleware)
 router.use('/api/appearances', appearanceRoutes.routes())
 router.use('/api/sync', syncRoutes.routes())
 router.use('/api/users', userRoutes.routes())
+router.use('/api/friends', friendRoutes.routes())
 
 // 404处理
 router.all('/(.*)', async (ctx) => {
