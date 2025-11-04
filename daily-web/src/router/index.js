@@ -33,6 +33,12 @@ const routes = [
         meta: { title: '好友管理', icon: 'User' }
       },
       {
+        path: 'diaries',
+        name: 'Diaries',
+        component: () => import('@/views/Diaries.vue'),
+        meta: { title: '日记管理', icon: 'Notebook' }
+      },
+      {
         path: 'users',
         name: 'Users',
         component: () => import('@/views/Users.vue'),

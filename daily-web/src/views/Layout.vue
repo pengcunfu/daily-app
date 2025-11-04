@@ -30,6 +30,11 @@
             <template #title>好友管理</template>
           </el-menu-item>
           
+          <el-menu-item index="/diaries">
+            <el-icon><Notebook /></el-icon>
+            <template #title>日记管理</template>
+          </el-menu-item>
+          
           <el-menu-item index="/users">
             <el-icon><UserFilled /></el-icon>
             <template #title>用户管理</template>

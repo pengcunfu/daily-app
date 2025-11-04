@@ -26,6 +26,7 @@ model User {
   devices     UserDevice[]
   syncLogs    SyncLog[]
   friends     Friend[]
+  diaries     Diary[]
 
   @@map("users")
 }
@@ -155,4 +156,37 @@ model Friend {
   @@index([userId, relationship])
   @@index([userId, importance])
   @@map("friends")
+}
+
+// 日记管理表
+model Diary {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  title       String    @db.VarChar(200) // 标题
+  content     String    @db.Text // 内容
+  date        DateTime  @default(now()) // 日记日期
+  mood        String?   @db.VarChar(50) // 心情 (very_happy, happy, normal, sad, very_sad)
+  weather     String?   @db.VarChar(50) // 天气
+  location    String?   @db.VarChar(200) // 地点
+  images      Json?     // 图片数组
+  tags        Json?     // 标签数组
+  isPrivate   Boolean   @default(true) @map("is_private") // 是否私密
+  
+  // 同步相关字段
+  version     Int       @default(1)
+  syncStatus  String    @default("synced") @map("sync_status")
+  deviceId    String?   @map("device_id")
+  lastModified DateTime @default(now()) @map("last_modified")
+  
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  // 关联关系
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([userId, deletedAt])
+  @@index([userId, mood])
+  @@map("diaries")
 }
