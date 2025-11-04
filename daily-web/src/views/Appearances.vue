@@ -392,13 +392,18 @@ const handleCommand = (command, item) => {
 // 编辑
 const handleEdit = (item) => {
   editingItem.value = item
-  Object.keys(form).forEach(key => {
-    if (key === 'tags') {
-      form[key] = JSON.parse(item.tags || '[]')
-    } else {
-      form[key] = item[key] || ''
-    }
-  })
+  
+  // 填充表单数据
+  form.title = item.title || ''
+  form.description = item.description || ''
+  form.mood = item.mood || ''
+  form.weather = item.weather || ''
+  form.occasion = item.occasion || ''
+  form.rating = item.rating || 0
+  form.isPrivate = item.isPrivate || false
+  
+  // 解析 tags (已经在 fetchAppearances 中解析过了)
+  form.tags = Array.isArray(item.tags) ? [...item.tags] : []
   
   // 设置文件列表
   fileList.value = item.photos.map((url, index) => ({
@@ -602,6 +607,7 @@ onMounted(() => {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
+    grid-gap: 20px; /* 兼容旧版浏览器 */
     
     .appearance-card {
       border: 1px solid #e4e7ed;
@@ -632,6 +638,7 @@ onMounted(() => {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 2px;
+        grid-gap: 2px; /* 兼容旧版浏览器 */
         
         .photo-item {
           width: 100%;
@@ -660,8 +667,10 @@ onMounted(() => {
           line-height: 1.4;
           display: -webkit-box;
           -webkit-line-clamp: 2;
+          line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
+          text-overflow: ellipsis;
         }
         
         .meta-tags {
