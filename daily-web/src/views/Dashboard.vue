@@ -96,31 +96,31 @@
             <el-button
               type="primary"
               size="large"
-              @click="$router.push('/appearances?action=create')"
+              @click="$router.push('/appearances')"
               class="action-btn"
             >
-              <el-icon><Plus /></el-icon>
-              添加形象记录
+              <el-icon><Camera /></el-icon>
+              形象管理
             </el-button>
             
             <el-button
               type="success"
               size="large"
-              @click="$router.push('/appearances')"
-              class="action-btn"
-            >
-              <el-icon><View /></el-icon>
-              浏览形象记录
-            </el-button>
-            
-            <el-button
-              type="info"
-              size="large"
-              @click="$router.push('/users')"
+              @click="$router.push('/friends')"
               class="action-btn"
             >
               <el-icon><User /></el-icon>
-              用户管理
+              好友管理
+            </el-button>
+            
+            <el-button
+              type="warning"
+              size="large"
+              @click="$router.push('/diaries')"
+              class="action-btn"
+            >
+              <el-icon><Notebook /></el-icon>
+              日记管理
             </el-button>
           </div>
         </div>
