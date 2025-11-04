@@ -408,19 +408,26 @@ onMounted(async () => {
           line-height: 1.4;
           display: -webkit-box;
           -webkit-line-clamp: 2;
+          line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
+          text-overflow: ellipsis;
         }
         
         .meta-info {
           display: flex;
           align-items: center;
-          gap: 8px;
+          flex-wrap: wrap;
+          
+          > * {
+            margin-right: 8px;
+          }
           
           .date {
             color: #999;
             font-size: 12px;
             margin-left: auto;
+            margin-right: 0;
           }
         }
       }
@@ -434,12 +441,16 @@ onMounted(async () => {
   .quick-actions {
     display: flex;
     flex-direction: column;
-    gap: 12px;
     
     .action-btn {
       width: 100%;
       height: 48px;
       font-size: 14px;
+      margin-bottom: 12px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
   }
   
