@@ -7,6 +7,28 @@ const database = require('../utils/database')
 
 const router = new Router()
 
+// 获取用户列表
+router.get('/', async (ctx) => {
+  const prisma = database.getClient()
+
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      avatar: true,
+      createdAt: true,
+      updatedAt: true,
+      lastSyncAt: true
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  })
+
+  ctx.success(users, '获取用户列表成功')
+})
+
 // 获取用户信息
 router.get('/profile', async (ctx) => {
   const userId = ctx.state.userId

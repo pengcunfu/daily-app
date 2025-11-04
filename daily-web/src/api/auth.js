@@ -18,23 +18,6 @@ export function register(data) {
   })
 }
 
-// 获取用户信息
-export function getUserInfo() {
-  return request({
-    url: '/users/profile',
-    method: 'get'
-  })
-}
-
-// 更新用户信息
-export function updateUserInfo(data) {
-  return request({
-    url: '/users/profile',
-    method: 'put',
-    data
-  })
-}
-
 // 刷新token
 export function refreshToken(data) {
   return request({

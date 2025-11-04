@@ -6,17 +6,11 @@
       </div>
       
       <el-table :data="userList" v-loading="loading">
-        <el-table-column prop="username" label="用户名" />
-        <el-table-column prop="email" label="邮箱" />
-        <el-table-column prop="createdAt" label="注册时间" :formatter="formatDate" />
-        <el-table-column prop="lastSyncAt" label="最后同步" :formatter="formatDate" />
-        <el-table-column prop="isActive" label="状态">
-          <template #default="{ row }">
-            <el-tag :type="row.isActive ? 'success' : 'danger'">
-              {{ row.isActive ? '正常' : '禁用' }}
-            </el-tag>
-          </template>
-        </el-table-column>
+        <el-table-column prop="username" label="用户名" width="150" />
+        <el-table-column prop="email" label="邮箱" width="200" />
+        <el-table-column prop="createdAt" label="注册时间" :formatter="formatDate" width="180" />
+        <el-table-column prop="updatedAt" label="更新时间" :formatter="formatDate" width="180" />
+        <el-table-column prop="lastSyncAt" label="最后同步" :formatter="formatDate" width="180" />
       </el-table>
       
       <el-empty v-if="!loading && userList.length === 0" description="暂无用户数据" />
@@ -26,7 +20,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
+import { getUserList } from '@/api/users'
 
 const loading = ref(false)
 const userList = ref([])
@@ -35,18 +31,26 @@ const formatDate = (row, column, cellValue) => {
   return cellValue ? dayjs(cellValue).format('YYYY-MM-DD HH:mm') : '-'
 }
 
-onMounted(() => {
-  // 模拟数据
-  userList.value = [
-    {
-      id: '1',
-      username: '管理员',
-      email: 'admin@example.com',
-      createdAt: new Date(),
-      lastSyncAt: new Date(),
-      isActive: true
+// 加载用户列表
+const loadUsers = async () => {
+  try {
+    loading.value = true
+    const res = await getUserList()
+    if (res.code === 0) {
+      userList.value = res.data
+    } else {
+      ElMessage.error(res.message || '获取用户列表失败')
     }
-  ]
+  } catch (error) {
+    console.error('获取用户列表失败:', error)
+    ElMessage.error('获取用户列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadUsers()
 })
 </script>
 
